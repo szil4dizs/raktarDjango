@@ -5,47 +5,50 @@
     <h2 class="mb-3">Eszközök listája</h2>
 
     <div class="btn-group btn-group-sm my-3" role="group" aria-label="Basic example">
-        <a href="{% url 'backup_database' %}" class="btn btn-primary">Adatbázis mentése</a>
-        <a href="{% url 'restore_database' %}" class="btn btn-primary">Adatbázis visszaállítása</a>
+        <a href="{% url 'backup_database' %}" class="btn btn-primary"><i class="bi bi-database-down"></i> mentés</a>
+        <a href="{% url 'restore_database' %}" class="btn btn-primary"><i class="bi bi-database-fill-up"></i> visszaállítás</a>
+        <a href="{% url 'export_machines_csv' %}" class="btn btn-primary"><i class="bi bi-filetype-csv"></i> letöltés</a>
+        <a href="{% url 'export_machines_excel' %}" class="btn btn-primary"><i class="bi bi-filetype-xlsx"></i> letöltés</a>
     </div>
-    
-    <table class="table table-striped table-hover">
-        <thead class="table-secondary">
-            <tr>
-                <th>Név</th>
-                <th>Típus</th>
-                <th>Sorozatszám</th>
-                <th>Gyártói cikkszám</th>
-                <th>Státus</th>
-                <th>Műveletek</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in hierarchy %}
-            <tr>
-                <td>{{ item.machine.name }}</td>
-                <td>{{ item.machine.type }}</td>
-                <td>{{ item.machine.serial_number |default:"-"}}</td>
-                <td>{{ item.machine.manufacturer_code }}</td>
-                <td>{{ item.machine.status }}</td>
-                <td>
-                    <a href="{% url 'inventory_details' pk=item.machine.pk %}" class="btn btn-primary btn-sm">Részletek</a>
-                </td>
-                {% if item.components %}
-                    {% for subitem in item.components %}
-                    <tr class="table-secondary">
-                        <td>└─ {{ subitem.name }}</td>
-                        <td>{{ subitem.type }}</td>
-                        <td>{{ subitem.serial_number|default:"-" }}</td>
-                        <td>{{ subitem.manufacturer_code|default:"-" }}</td>
-                        <td>{{ subitem.status }}</td>
-                        <td></td>
-                    </tr>
-                    {% endfor %}
-                {% endif %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-responsive-md">
+        <table class="table table-striped table-hover">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Név</th>
+                    <th>Típus</th>
+                    <th>Sorozatszám</th>
+                    <th>Gyártói cikkszám</th>
+                    <th>Státus</th>
+                    <th>Műveletek</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in hierarchy %}
+                <tr>
+                    <td>{{ item.machine.name }}</td>
+                    <td>{{ item.machine.type }}</td>
+                    <td>{{ item.machine.serial_number |default:"-"}}</td>
+                    <td>{{ item.machine.manufacturer_code }}</td>
+                    <td>{{ item.machine.status }}</td>
+                    <td>
+                        <a href="{% url 'inventory_details' pk=item.machine.pk %}" class="btn btn-primary btn-sm">Részletek</a>
+                    </td>
+                    {% if item.components %}
+                        {% for subitem in item.components %}
+                        <tr class="table-secondary">
+                            <td>└─ {{ subitem.name }}</td>
+                            <td>{{ subitem.type }}</td>
+                            <td>{{ subitem.serial_number|default:"-" }}</td>
+                            <td>{{ subitem.manufacturer_code|default:"-" }}</td>
+                            <td>{{ subitem.status }}</td>
+                            <td></td>
+                        </tr>
+                        {% endfor %}
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

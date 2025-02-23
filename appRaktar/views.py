@@ -1,5 +1,7 @@
 import os
+import csv
 import shutil
+import openpyxl
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Store, Invoice, Machine
 from django.http import HttpResponse, HttpRequest
@@ -71,3 +73,55 @@ def restore_database(request: HttpRequest):
         return redirect("restore_database")
 
     return render(request, "raktar/restore.html")
+
+def export_machines_csv(request):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="machines.csv"'
+
+    writer = csv.writer(response, delimiter=";")
+    
+    # Fejléc
+    writer.writerow(["Név", "Típus", "Gyártói cikkszám", "Sorozatszám", "Státusz", "Számla", "Bolt", "Ár (Ft)"])
+    
+    # Adatok beírása
+    for machine in Machine.objects.all():
+        writer.writerow([
+            machine.name,
+            machine.type or "-",
+            machine.manufacturer_code or "-",
+            machine.serial_number or "-",
+            machine.get_status_display(),
+            machine.invoice.invoice_number if machine.invoice else "-",
+            machine.invoice.store.name if machine.invoice and machine.invoice.store else "-",
+            machine.price,
+        ])
+
+    return response
+
+def export_machines_excel(request):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Machines"
+
+    # Fejléc sor
+    headers = ["Név", "Típus", "Gyártói cikkszám", "Sorozatszám", "Státusz", "Számla", "Bolt", "Ár (Ft)"]
+    ws.append(headers)
+
+    # Adatok beírása
+    for machine in Machine.objects.all():
+        ws.append([
+            machine.name,
+            machine.type or "-",
+            machine.manufacturer_code or "-",
+            machine.serial_number or "-",
+            machine.get_status_display(),
+            machine.invoice.invoice_number if machine.invoice else "-",
+            machine.invoice.store.name if machine.invoice and machine.invoice.store else "-",
+            machine.price,
+        ])
+
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="machines.xlsx"'
+    wb.save(response)
+
+    return response
