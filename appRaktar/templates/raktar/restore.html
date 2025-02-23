@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %} Raktár - Visszaállítás {% endblock %}
+{% block content %}
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="backup_file">Válaszd ki a mentett adatbázist:</label>
+    <input type="file" name="backup_file" accept=".sqlite3" required>
+    <button type="submit">Visszaállítás</button>
+</form>
+
+{% if messages %}
+<ul>
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% endblock %}

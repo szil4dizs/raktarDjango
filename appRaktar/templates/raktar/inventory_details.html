@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %} Raktár - Részletek {% endblock %}
+{% block content %}
+<div class="container">
+    <h2 class="mb-3">{{ machine.name }} részletei</h2>
+
+    <table class="table table-bordered">
+        <tr>
+            <th>Név</th>
+            <td>{{ machine.name }}</td>
+        </tr>
+        <tr>
+            <th>Típus</th>
+            <td>{{ machine.type|default:"-" }}</td>
+        </tr>
+        <tr>
+            <th>Sorozatszám</th>
+            <td>{{ machine.serial_number|default:"-" }}</td>
+        </tr>
+        <tr>
+            <th>Gyártói cikkszám</th>
+            <td>{{ machine.manufacturer_code|default:"-" }}</td>
+        </tr>
+        <tr>
+            <th>Státusz</th>
+            <td>{{ machine.get_status_display }}</td>
+        </tr>
+        <tr>
+            <th>Ár</th>
+            <td>{{ machine.price }} Ft</td>
+        </tr>
+        <tr>
+            <th>Számla</th>
+            <td>{{ machine.invoice.store.name }} {{ machine.invoice.invoice_number|default:"-" }} ({{ machine.invoice.purchase_date|default:"-" }})</td>
+        </tr>
+    </table>
+
+    {% if components %}
+        <h3 class="mt-4">Kapcsolódó komponensek</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Név</th>
+                    <th>Típus</th>
+                    <th>Sorozatszám</th>
+                    <th>Gyártói cikkszám</th>
+                    <th>Státusz</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for component in components %}
+                <tr>
+                    <td><a href="{% url 'inventory_details' component.id %}">{{ component.name }}</a></td>
+                    <td>{{ component.type|default:"-" }}</td>
+                    <td>{{ component.serial_number|default:"-" }}</td>
+                    <td>{{ component.manufacturer_code|default:"-" }}</td>
+                    <td>{{ component.get_status_display }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <a href="/" class="btn btn-secondary mt-3">Vissza a listához</a>
+</div>
+{% endblock %}
