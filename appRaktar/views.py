@@ -2,6 +2,7 @@ import os
 import csv
 import shutil
 import openpyxl
+import datetime
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Store, Invoice, Machine
 from django.http import HttpResponse, HttpRequest
@@ -31,6 +32,9 @@ def inventory_details(request, pk):
 
 
 def backup_database(request):
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"db_backup-{timestamp}.sqlite3"
+
     db_path = os.path.join(settings.BASE_DIR, 'db.sqlite3')
     backup_path = os.path.join(settings.BASE_DIR, 'db_backup.sqlite3')
     shutil.copy2(db_path, backup_path)
@@ -38,7 +42,7 @@ def backup_database(request):
     # Fájl letöltése
     with open(backup_path, 'rb') as backup_file:
         response = HttpResponse(backup_file.read(), content_type='application/octet-stream')
-        response['Content-Disposition'] = f'attachment; filename="{os.path.basename(backup_path)}"'
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
     # Fájl törlése a letöltés után
     os.remove(backup_path)
@@ -75,8 +79,11 @@ def restore_database(request: HttpRequest):
     return render(request, "raktar/restore.html")
 
 def export_machines_csv(request):
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"eszközök-{timestamp}.csv"
+
     response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = 'attachment; filename="machines.csv"'
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
     writer = csv.writer(response, delimiter=";")
     
@@ -99,6 +106,9 @@ def export_machines_csv(request):
     return response
 
 def export_machines_excel(request):
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"eszközök-{timestamp}.xlsx"
+
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Machines"
@@ -121,7 +131,7 @@ def export_machines_excel(request):
         ])
 
     response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response["Content-Disposition"] = 'attachment; filename="machines.xlsx"'
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
     wb.save(response)
 
     return response
